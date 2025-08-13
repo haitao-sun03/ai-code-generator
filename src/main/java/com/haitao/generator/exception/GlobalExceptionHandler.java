@@ -1,5 +1,6 @@
 package com.haitao.generator.exception;
 
+import cn.dev33.satoken.exception.SaTokenException;
 import com.haitao.generator.model.ApiResponse;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public ApiResponse<?> businessExceptionHandler(BusinessException e) {
         log.error("BusinessException", e);
+        return ApiResponse.error(e.getCode(), e.getMessage());
+    }
+
+    @ExceptionHandler(SaTokenException.class)
+    public ApiResponse<?> saTokenExceptionHandler(SaTokenException e) {
+        log.error("SaTokenException", e);
         return ApiResponse.error(e.getCode(), e.getMessage());
     }
 
