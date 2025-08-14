@@ -49,6 +49,12 @@ public interface UserService extends IService<User> {
     boolean isLogin();
 
     /**
+     * 获取登录用户
+     * @return
+     */
+    LoginUserVO getLoginUser();
+
+    /**
      * 用户注销
      *
      * @return

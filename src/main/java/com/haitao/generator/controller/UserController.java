@@ -63,6 +63,16 @@ public class UserController {
 
 
     /**
+     * 获取当前登录用户
+     * @return
+     */
+    @PostMapping("/login/user")
+    public ApiResponse<LoginUserVO> getLoginUser() {
+        return ApiResponse.success(userService.getLoginUser());
+    }
+
+
+    /**
      * 判断用户是否登录
      *
      */

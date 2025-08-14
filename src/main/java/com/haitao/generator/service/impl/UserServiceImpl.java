@@ -88,6 +88,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
+    public LoginUserVO getLoginUser() {
+        Long userId = Long.valueOf((String)StpUtil.getLoginId());
+        User user = this.getById(userId);
+        LoginUserVO loginUserVO = getLoginUserVO(user);
+        return loginUserVO;
+    }
+
+    @Override
     public boolean userLogout() {
         try {
             StpUtil.logout();
