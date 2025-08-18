@@ -2,21 +2,17 @@ package com.haitao.generator.controller;
 
 import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.hutool.core.bean.BeanUtil;
-import com.haitao.generator.exception.BusinessException;
 import com.haitao.generator.exception.ErrorCode;
 import com.haitao.generator.model.ApiResponse;
-import com.haitao.generator.model.request.*;
+import com.haitao.generator.model.request.user.*;
 import com.haitao.generator.model.response.LoginUserVO;
 import com.haitao.generator.model.response.UserVO;
 import com.haitao.generator.utils.EncrptUtils;
 import com.haitao.generator.utils.ThrowUtils;
 import com.mybatisflex.core.paginate.Page;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * 用户表 控制层。
+ * 用户表 Controller
  *
  * @author haitao
  */
@@ -64,6 +60,7 @@ public class UserController {
 
     /**
      * 获取当前登录用户
+     *
      * @return
      */
     @PostMapping("/login/user")
@@ -140,7 +137,7 @@ public class UserController {
     @SaCheckRole("admin")
     public ApiResponse<Boolean> deleteUser(@RequestBody @Valid UserDeleteRequest userDeleteRequest) {
 
-        boolean b = userService.removeById(userDeleteRequest.getId());
+        boolean b = userService.removeById(Long.valueOf(userDeleteRequest.getId()));
         return ApiResponse.success(b);
     }
 

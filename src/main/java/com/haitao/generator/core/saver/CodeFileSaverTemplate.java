@@ -21,10 +21,10 @@ public abstract class CodeFileSaverTemplate<T> {
      * @param codeResult
      * @return
      */
-    public final File saveFile(T codeResult) {
+    public final File saveFile(T codeResult, Long appId) {
         validateInput(codeResult);
 //        生成文件的保存目录
-        String baseDir = buildDir();
+        String baseDir = buildDir(appId);
         saveFiles(codeResult, baseDir);
         return new File(baseDir);
     }
@@ -40,10 +40,10 @@ public abstract class CodeFileSaverTemplate<T> {
         }
     }
 
-    protected String buildDir() {
+    protected String buildDir(Long appId) {
         CodeGenTypeEnum codeGenType = this.getGenType();
 //        生成唯一的文件夹
-        String directoryName = String.format("%s_%s", codeGenType.getValue(), IdUtil.getSnowflakeNextIdStr());
+        String directoryName = String.format("%s_%s", codeGenType.getValue(), appId);
         String dirPath = FILE_SAVE_ROOT_DIR + File.separator + directoryName;
         FileUtil.mkdir(dirPath);
         return dirPath;

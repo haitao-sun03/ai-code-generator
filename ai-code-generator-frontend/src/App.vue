@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import BasicLayout from './layouts/BasicLayout.vue'
-import { useLoginUserStore } from '@/stores/useLoginUserStore.ts'
-
-// 初始化全局登录用户状态
-const loginUserStore = useLoginUserStore()
-loginUserStore.fetchLoginUser()
+import BasicLayout from '@/layouts/BasicLayout.vue'
 </script>
 
 <template>
@@ -12,5 +7,23 @@ loginUserStore.fetchLoginUser()
 </template>
 
 <style>
-/* 全局样式 */
+/* 全局样式优化 */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
+    'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+html {
+  overflow-x: hidden;
+}
 </style>

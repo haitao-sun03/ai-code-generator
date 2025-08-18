@@ -1,9 +1,7 @@
-package com.haitao.generator.model.request;
+package com.haitao.generator.model.request.user;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import org.hibernate.validator.constraints.Length;
 
 import java.io.Serializable;
 
@@ -16,7 +14,6 @@ public class UserDeleteRequest implements Serializable {
      * id
      */
     @NotBlank(message = "id不能为空")
-    @Min(value = 1,message = "用户合法id必须大于0")
-    private Long id;
+    private String id;
 
 }

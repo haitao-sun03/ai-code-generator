@@ -1,4 +1,4 @@
-package com.haitao.generator.model.request;
+package com.haitao.generator.model.request.user;
 
 import com.haitao.generator.model.PageRequest;
 import lombok.Data;

@@ -7,9 +7,9 @@ import cn.hutool.core.util.ObjUtil;
 import com.haitao.generator.enums.UserRoleEnum;
 import com.haitao.generator.exception.BusinessException;
 import com.haitao.generator.exception.ErrorCode;
-import com.haitao.generator.model.request.UserLoginRequest;
-import com.haitao.generator.model.request.UserQueryRequest;
-import com.haitao.generator.model.request.UserRegisterRequest;
+import com.haitao.generator.model.request.user.UserLoginRequest;
+import com.haitao.generator.model.request.user.UserQueryRequest;
+import com.haitao.generator.model.request.user.UserRegisterRequest;
 import com.haitao.generator.model.response.LoginUserVO;
 import com.haitao.generator.model.response.UserVO;
 import com.haitao.generator.utils.EncrptUtils;
@@ -136,10 +136,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String sortOrder = userQueryRequest.getSortOrder();
         return QueryWrapper.create()
                 .eq("id", id)
-                .eq("userRole", userRole)
-                .like("userAccount", userAccount)
-                .like("userName", userName)
-                .like("userProfile", userProfile)
+                .eq("user_role", userRole)
+                .like("user_account", userAccount)
+                .like("user_name", userName)
+                .like("user_profile", userProfile)
                 .orderBy(sortField, "ascend".equals(sortOrder));
     }
 

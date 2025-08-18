@@ -1,36 +1,37 @@
 <template>
   <div id="userLoginPage">
-    <h2 class="title">AI应用生成平台 请登录</h2>
-
+    <h2 class="title">AI 应用生成 - 用户登录</h2>
     <a-form :model="formState" name="basic" autocomplete="off" @finish="handleSubmit">
-      <a-form-item name="userAccount" :rules="[{ required: true, message: '请输入账号!' }]">
-        <a-input v-model:value="formState.userAccount" placeholder="请输入账号"/>
+      <a-form-item name="userAccount" :rules="[{ required: true, message: '请输入账号' }]">
+        <a-input v-model:value="formState.userAccount" placeholder="请输入账号" />
       </a-form-item>
-
-      <a-form-item name="userPassword" :rules="[{ required: true, message: '请输入密码!' }]">
-        <a-input-password v-model:value="formState.userPassword" placeholder="请输入密码"/>
+      <a-form-item
+        name="userPassword"
+        :rules="[
+          { required: true, message: '请输入密码' },
+          { min: 8, message: '密码长度不能小于 8 位' },
+        ]"
+      >
+        <a-input-password v-model:value="formState.userPassword" placeholder="请输入密码" />
       </a-form-item>
-
       <div class="tips">
-        没有账号？
+        没有账号
         <RouterLink to="/user/register">去注册</RouterLink>
       </div>
-
-      <a-form-item :wrapper-col="{ offset: 8, span: 16 }">
-        <a-button type="primary" html-type="submit">登录</a-button>
+      <a-form-item>
+        <a-button type="primary" html-type="submit" style="width: 100%">登录</a-button>
       </a-form-item>
     </a-form>
   </div>
 </template>
 <script lang="ts" setup>
 import { reactive } from 'vue'
-import UserLoginRequest = API.UserLoginRequest
 import { login } from '@/api/userController.ts'
-import { message } from 'ant-design-vue'
+import { useLoginUserStore } from '@/stores/loginUser.ts'
 import { useRouter } from 'vue-router'
-import { useLoginUserStore } from '@/stores/useLoginUserStore.ts'
+import { message } from 'ant-design-vue'
 
-const formState = reactive<UserLoginRequest>({
+const formState = reactive<API.UserLoginRequest>({
   userAccount: '',
   userPassword: '',
 })
@@ -49,7 +50,7 @@ const handleSubmit = async (values: any) => {
     await loginUserStore.fetchLoginUser()
     message.success('登录成功')
     router.push({
-      path: '/home',
+      path: '/',
       replace: true,
     })
   } else {
@@ -60,19 +61,21 @@ const handleSubmit = async (values: any) => {
 
 <style scoped>
 #userLoginPage {
-  max-width: 360px;
-  margin: 0 auto;
+  background: white;
+  max-width: 720px;
+  padding: 24px;
+  margin: 24px auto;
 }
 
 .title {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .tips {
-  margin-bottom: 16px;
+  text-align: right;
   color: #bbb;
   font-size: 13px;
-  text-align: right;
+  margin-bottom: 16px;
 }
 </style>

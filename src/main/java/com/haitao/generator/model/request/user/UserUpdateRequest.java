@@ -1,4 +1,4 @@
-package com.haitao.generator.model.request;
+package com.haitao.generator.model.request.user;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -14,7 +14,7 @@ public class UserUpdateRequest implements Serializable {
      * id
      */
     @NotBlank(message = "id不能为空")
-    private Long id;
+    private String id;
 
     /**
      * 用户昵称

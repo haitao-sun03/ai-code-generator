@@ -1,7 +1,6 @@
-package com.haitao.generator.model.request;
+package com.haitao.generator.model.request.user;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.io.Serializable;

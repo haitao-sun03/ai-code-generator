@@ -1,8 +1,8 @@
 package com.haitao.generator.service;
 
-import com.haitao.generator.model.request.UserLoginRequest;
-import com.haitao.generator.model.request.UserQueryRequest;
-import com.haitao.generator.model.request.UserRegisterRequest;
+import com.haitao.generator.model.request.user.UserLoginRequest;
+import com.haitao.generator.model.request.user.UserQueryRequest;
+import com.haitao.generator.model.request.user.UserRegisterRequest;
 import com.haitao.generator.model.response.LoginUserVO;
 import com.haitao.generator.model.response.UserVO;
 import com.mybatisflex.core.query.QueryWrapper;
