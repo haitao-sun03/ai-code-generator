@@ -19,6 +19,7 @@ spring:
           max-wait: -1ms
           max-idle: 10
           min-idle: 0
+      ttl: 3600
 
 # springdoc-openapi
 springdoc:

@@ -7,7 +7,6 @@ import cn.hutool.json.JSONUtil;
 import com.haitao.generator.exception.ErrorCode;
 import com.haitao.generator.model.ApiResponse;
 import com.haitao.generator.model.entity.App;
-import com.haitao.generator.model.entity.User;
 import com.haitao.generator.model.request.app.*;
 import com.haitao.generator.model.response.AppVO;
 import com.haitao.generator.service.AppService;
@@ -24,7 +23,6 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.Map;
 
-import static com.haitao.generator.constant.AppConstant.CODE_DEPLOY_HOST;
 
 /**
  * 应用 Controller

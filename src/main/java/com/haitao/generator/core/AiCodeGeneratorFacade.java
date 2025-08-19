@@ -3,6 +3,7 @@ package com.haitao.generator.core;
 import com.haitao.generator.ai.AiCodeGeneratorService;
 import com.haitao.generator.ai.model.HtmlCodeResult;
 import com.haitao.generator.ai.model.MultiFileCodeResult;
+import com.haitao.generator.config.AiCodeGeneratorServiceFactory;
 import com.haitao.generator.core.parser.CodeParserExecutor;
 import com.haitao.generator.core.saver.CodeFileSaverExecutor;
 import com.haitao.generator.enums.CodeGenTypeEnum;
@@ -10,6 +11,7 @@ import com.haitao.generator.exception.BusinessException;
 import com.haitao.generator.exception.ErrorCode;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
@@ -23,7 +25,8 @@ import java.io.File;
 public class AiCodeGeneratorFacade {
 
     @Resource
-    private AiCodeGeneratorService aiCodeGeneratorService;
+    @Lazy
+    private AiCodeGeneratorServiceFactory aiCodeGeneratorServiceFactory;
 
     /**
      * 统一入口：根据类型生成并保存代码
@@ -36,6 +39,7 @@ public class AiCodeGeneratorFacade {
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "生成类型为空");
         }
+        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId);
         return switch (codeGenTypeEnum) {
             case HTML -> {
                 HtmlCodeResult result = aiCodeGeneratorService.generateHtmlCode(userMessage);
@@ -64,6 +68,7 @@ public class AiCodeGeneratorFacade {
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "生成类型为空");
         }
+        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId);
         return switch (codeGenTypeEnum) {
             case HTML -> {
                 Flux<String> htmlFlux = aiCodeGeneratorService.generateHtmlCodeStream(userMessage);

@@ -7,6 +7,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.haitao.generator.core.AiCodeGeneratorFacade;
+import com.haitao.generator.enums.ChatMessageTypeEnum;
 import com.haitao.generator.enums.CodeGenTypeEnum;
 import com.haitao.generator.exception.BusinessException;
 import com.haitao.generator.exception.ErrorCode;
@@ -18,16 +19,19 @@ import com.haitao.generator.model.request.app.AppQueryRequest;
 import com.haitao.generator.model.response.AppVO;
 import com.haitao.generator.model.response.UserVO;
 import com.haitao.generator.service.AppService;
+import com.haitao.generator.service.ChatHistoryService;
 import com.haitao.generator.service.UserService;
 import com.haitao.generator.utils.ThrowUtils;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import opennlp.tools.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.io.File;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +54,10 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
     @Autowired
     private AiCodeGeneratorFacade aiCodeGeneratorFacade;
 
+    @Autowired
+    @Lazy
+    private ChatHistoryService chatHistoryService;
+
     @Override
     public Flux<String> chatToGenerate(Long appId, String userMessage) {
 //        校验参数
@@ -62,9 +70,23 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         ThrowUtils.throwIf(!userId.equals(app.getUserId()), ErrorCode.NO_AUTH_ERROR, "登录用户不是当前应用拥有者");
         String codeGenType = app.getCodeGenType();
         CodeGenTypeEnum codeGenTypeEnum = CodeGenTypeEnum.getEnumByValue(codeGenType);
+//保存用户消息
+        chatHistoryService.addChatMessage(appId, userMessage, ChatMessageTypeEnum.USER.getValue(), userId);
 
 //        生成内容
-        return aiCodeGeneratorFacade.generateAndSaveCodeStream(userMessage, codeGenTypeEnum, appId);
+        Flux<String> aiResponseFlux = aiCodeGeneratorFacade.generateAndSaveCodeStream(userMessage, codeGenTypeEnum, appId);
+        StringBuilder aiResponseBuilder = new StringBuilder();
+        return aiResponseFlux.doOnNext(chunk -> {
+            aiResponseBuilder.append(chunk);
+        }).doOnComplete(() -> {
+//            保存AI回复消息
+            String aiResponseContent = aiResponseBuilder.toString();
+            chatHistoryService.addChatMessage(appId, aiResponseContent, ChatMessageTypeEnum.AI.getValue(), userId);
+        }).doOnError(err -> {
+//            保存AI回复消息错误
+            String errMessage = StrUtil.format("AI回复异常：{}", err.getMessage());
+            chatHistoryService.addChatMessage(appId, errMessage, ChatMessageTypeEnum.AI.getValue(), userId);
+        });
     }
 
     @Override
@@ -104,7 +126,7 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
 
         boolean updateResult = this.updateById(updateApp);
         ThrowUtils.throwIf(!updateResult, ErrorCode.OPERATION_ERROR, "部署应用后更新数据库失败");
-        return StrUtil.format("{}/{}",CODE_DEPLOY_HOST,deployKey);
+        return StrUtil.format("{}/{}", CODE_DEPLOY_HOST, deployKey);
     }
 
     @Override
@@ -252,5 +274,18 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         }
 
         return queryWrapper;
+    }
+
+    /**
+     * 重写Mybatis-flex父类方法，其中补充删除对话历史记录的逻辑
+     * @param id
+     * @return
+     */
+    @Override
+    public boolean removeById(Serializable id) {
+        ThrowUtils.throwIf(id == null, ErrorCode.PARAMS_ERROR,"待删除的appId不能为空");
+        chatHistoryService.deleteChatMessageByAppId((Long)id);
+        return super.removeById(id);
+
     }
 }
