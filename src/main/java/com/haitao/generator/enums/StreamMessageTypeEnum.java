@@ -4,16 +4,16 @@ import cn.hutool.core.util.ObjUtil;
 import lombok.Getter;
 
 @Getter
-public enum CodeGenTypeEnum {
+public enum StreamMessageTypeEnum {
 
-    HTML("原生 HTML 模式", "html"),
-    MULTI_FILE("原生多文件模式", "multi_file"),
-    VUE_PROJECT("vue项目生成", "vue_project");
+    AI_TEXT_RESPONSE("AI文本类型", "ai_text_response"),
+    TOOL_REQUEST("工具调用", "tool_request"),
+    TOOL_EXECUTED("工具调用完成响应", "tool_executed");
 
     private final String text;
     private final String value;
 
-    CodeGenTypeEnum(String text, String value) {
+    StreamMessageTypeEnum(String text, String value) {
         this.text = text;
         this.value = value;
     }
@@ -24,15 +24,16 @@ public enum CodeGenTypeEnum {
      * @param value 枚举值的value
      * @return 枚举值
      */
-    public static CodeGenTypeEnum getEnumByValue(String value) {
+    public static StreamMessageTypeEnum getEnumByValue(String value) {
         if (ObjUtil.isEmpty(value)) {
             return null;
         }
-        for (CodeGenTypeEnum anEnum : CodeGenTypeEnum.values()) {
+        for (StreamMessageTypeEnum anEnum : StreamMessageTypeEnum.values()) {
             if (anEnum.value.equals(value)) {
                 return anEnum;
             }
         }
         return null;
     }
+
 }

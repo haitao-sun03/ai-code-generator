@@ -1,21 +1,29 @@
 package com.haitao.generator.core;
 
+import cn.hutool.json.JSONUtil;
 import com.haitao.generator.ai.AiCodeGeneratorService;
 import com.haitao.generator.ai.model.HtmlCodeResult;
 import com.haitao.generator.ai.model.MultiFileCodeResult;
+import com.haitao.generator.ai.model.messages.AiResponseTextMessage;
+import com.haitao.generator.ai.model.messages.ToolExecutedMessage;
+import com.haitao.generator.ai.model.messages.ToolRequestMessage;
 import com.haitao.generator.config.AiCodeGeneratorServiceFactory;
 import com.haitao.generator.core.parser.CodeParserExecutor;
 import com.haitao.generator.core.saver.CodeFileSaverExecutor;
+import com.haitao.generator.core.stream.handler.StreamHandler;
 import com.haitao.generator.enums.CodeGenTypeEnum;
 import com.haitao.generator.exception.BusinessException;
 import com.haitao.generator.exception.ErrorCode;
+import dev.langchain4j.service.TokenStream;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * AI 代码生成外观类，组合生成和保存功能
@@ -39,7 +47,7 @@ public class AiCodeGeneratorFacade {
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "生成类型为空");
         }
-        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId);
+        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId, codeGenTypeEnum);
         return switch (codeGenTypeEnum) {
             case HTML -> {
                 HtmlCodeResult result = aiCodeGeneratorService.generateHtmlCode(userMessage);
@@ -68,7 +76,7 @@ public class AiCodeGeneratorFacade {
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "生成类型为空");
         }
-        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId);
+        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId, codeGenTypeEnum);
         return switch (codeGenTypeEnum) {
             case HTML -> {
                 Flux<String> htmlFlux = aiCodeGeneratorService.generateHtmlCodeStream(userMessage);
@@ -78,6 +86,12 @@ public class AiCodeGeneratorFacade {
                 Flux<String> multiFlux = aiCodeGeneratorService.generateMultiCodeStream(userMessage);
                 yield proccessCode(multiFlux, codeGenTypeEnum, appId);
             }
+            case VUE_PROJECT -> {
+                TokenStream tokenStream = aiCodeGeneratorService.generateVueProjectStream(appId, userMessage);
+//                将tokenStream转换为统一的返回值类型Flux<String>，其中对不同类型的响应流进行包装
+                yield proceesTokenStream(tokenStream);
+            }
+
             default -> {
                 String errorMessage = "不支持的生成类型：" + codeGenTypeEnum.getValue();
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, errorMessage);
@@ -101,5 +115,29 @@ public class AiCodeGeneratorFacade {
                     log.info("保存文件成功");
                 });
 
+    }
+
+    private Flux<String> proceesTokenStream(TokenStream tokenStream) {
+        return Flux.create(sink -> {
+            tokenStream.onPartialResponse(partialResponse -> {
+                        AiResponseTextMessage aiResponseTextMessage = new AiResponseTextMessage(partialResponse);
+                        sink.next(JSONUtil.toJsonStr(aiResponseTextMessage));
+                    })
+                    .beforeToolExecution((beforeToolExecution) -> {
+                        ToolRequestMessage toolRequestMessage = new ToolRequestMessage(beforeToolExecution.request());
+                        sink.next(JSONUtil.toJsonStr(toolRequestMessage));
+                    })
+                    .onToolExecuted(toolExecution -> {
+                        ToolExecutedMessage toolExecutedMessage = new ToolExecutedMessage(toolExecution);
+                        sink.next(JSONUtil.toJsonStr(toolExecutedMessage));
+                    })
+                    .onCompleteResponse(response -> {
+                        sink.complete();
+                    })
+                    .onError(error -> {
+                        sink.error(error);
+                    })
+                    .start();
+        });
     }
 }

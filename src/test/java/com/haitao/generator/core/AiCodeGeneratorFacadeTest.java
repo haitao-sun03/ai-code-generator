@@ -33,4 +33,13 @@ class AiCodeGeneratorFacadeTest {
         String allContent = String.join("", block);
         Assertions.assertNotNull(allContent);
     }
+
+    @Test
+    void generateAndSaveCodeVueProjectStream() {
+        Flux<String> stringFlux = aiCodeGeneratorFacade.generateAndSaveCodeStream("帮我生成todoList项目，长度不超过200行", CodeGenTypeEnum.VUE_PROJECT, 100L);
+        List<String> block = stringFlux.collectList().block();
+        Assertions.assertNotNull(block);
+        String allContent = String.join("", block);
+        Assertions.assertNotNull(allContent);
+    }
 }

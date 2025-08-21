@@ -7,6 +7,8 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.haitao.generator.core.AiCodeGeneratorFacade;
+import com.haitao.generator.core.builder.VueProjectBuilder;
+import com.haitao.generator.core.stream.handler.StreamHandler;
 import com.haitao.generator.enums.ChatMessageTypeEnum;
 import com.haitao.generator.enums.CodeGenTypeEnum;
 import com.haitao.generator.exception.BusinessException;
@@ -20,10 +22,12 @@ import com.haitao.generator.model.response.AppVO;
 import com.haitao.generator.model.response.UserVO;
 import com.haitao.generator.service.AppService;
 import com.haitao.generator.service.ChatHistoryService;
+import com.haitao.generator.service.ScreenShotService;
 import com.haitao.generator.service.UserService;
 import com.haitao.generator.utils.ThrowUtils;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
+import jakarta.annotation.Resource;
 import opennlp.tools.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -58,6 +62,15 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
     @Lazy
     private ChatHistoryService chatHistoryService;
 
+    @Autowired
+    private List<StreamHandler> streamHandlers;
+
+    @Resource
+    private VueProjectBuilder vueProjectBuilder;
+
+    @Resource
+    private ScreenShotService screenShotService;
+
     @Override
     public Flux<String> chatToGenerate(Long appId, String userMessage) {
 //        校验参数
@@ -75,18 +88,13 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
 
 //        生成内容
         Flux<String> aiResponseFlux = aiCodeGeneratorFacade.generateAndSaveCodeStream(userMessage, codeGenTypeEnum, appId);
-        StringBuilder aiResponseBuilder = new StringBuilder();
-        return aiResponseFlux.doOnNext(chunk -> {
-            aiResponseBuilder.append(chunk);
-        }).doOnComplete(() -> {
-//            保存AI回复消息
-            String aiResponseContent = aiResponseBuilder.toString();
-            chatHistoryService.addChatMessage(appId, aiResponseContent, ChatMessageTypeEnum.AI.getValue(), userId);
-        }).doOnError(err -> {
-//            保存AI回复消息错误
-            String errMessage = StrUtil.format("AI回复异常：{}", err.getMessage());
-            chatHistoryService.addChatMessage(appId, errMessage, ChatMessageTypeEnum.AI.getValue(), userId);
-        });
+        for (StreamHandler streamHandler : streamHandlers) {
+            if (streamHandler.support(codeGenTypeEnum)) {
+                return streamHandler.handle(aiResponseFlux, chatHistoryService, appId, userId);
+            }
+        }
+
+        return aiResponseFlux;
     }
 
     @Override
@@ -109,6 +117,15 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         if (!sourceDirFile.exists() || !sourceDirFile.isDirectory()) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "请先生成应用");
         }
+
+//        如果是VUE项目，需要移动的是项目的打包目录dist，特殊处理
+        if (codeGenType.equals(CodeGenTypeEnum.VUE_PROJECT.getValue())) {
+            boolean isBuildSuccess = vueProjectBuilder.buildProject(sourceDir);
+            ThrowUtils.throwIf(!isBuildSuccess, ErrorCode.SYSTEM_ERROR, "部署VUE项目失败，请重试");
+            File distDir = new File(sourceDir, "dist");
+            ThrowUtils.throwIf(!distDir.exists(), ErrorCode.SYSTEM_ERROR, "部署VUE项目成功，但dist目录未生成，请重试");
+            sourceDirFile = distDir;
+        }
         //        移动文件到部署目录
         String destDir = CODE_DEPLOY_ROOT_DIR + File.separator + deployKey;
         File destDirFile = new File(destDir);
@@ -126,7 +143,21 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
 
         boolean updateResult = this.updateById(updateApp);
         ThrowUtils.throwIf(!updateResult, ErrorCode.OPERATION_ERROR, "部署应用后更新数据库失败");
-        return StrUtil.format("{}/{}", CODE_DEPLOY_HOST, deployKey);
+        String deployUrl = StrUtil.format("{}/{}", CODE_DEPLOY_HOST, deployKey);
+//        异步进行截图，压缩，上传COS，清理，更新app cover字段
+        screenShotAndUploadCOSAsync(deployUrl, appId);
+        return deployUrl;
+    }
+
+    private void screenShotAndUploadCOSAsync(String webUrl, long appId) {
+        Thread.startVirtualThread(() -> {
+            String cosUrl = screenShotService.screenShotAndUpload(webUrl);
+            App app = new App();
+            app.setId(appId);
+            app.setCover(cosUrl);
+            boolean updateRes = this.updateById(app);
+            ThrowUtils.throwIf(!updateRes, ErrorCode.OPERATION_ERROR, "更新app cover失败：" + appId);
+        });
     }
 
     @Override
@@ -138,8 +169,8 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         String appName = appAddRequest.getInitPrompt().length() > 12 ? appAddRequest.getInitPrompt().substring(0, 12) : appAddRequest.getInitPrompt();
         app.setAppName(appName);
         app.setUserId(userId);
-        //默认为HTML生成类型
-        app.setCodeGenType(CodeGenTypeEnum.HTML.getValue());
+        //默认为VUE模式的app
+        app.setCodeGenType(CodeGenTypeEnum.VUE_PROJECT.getValue());
         // 默认优先级为0
         app.setPriority(0);
 
@@ -278,13 +309,14 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
 
     /**
      * 重写Mybatis-flex父类方法，其中补充删除对话历史记录的逻辑
+     *
      * @param id
      * @return
      */
     @Override
     public boolean removeById(Serializable id) {
-        ThrowUtils.throwIf(id == null, ErrorCode.PARAMS_ERROR,"待删除的appId不能为空");
-        chatHistoryService.deleteChatMessageByAppId((Long)id);
+        ThrowUtils.throwIf(id == null, ErrorCode.PARAMS_ERROR, "待删除的appId不能为空");
+        chatHistoryService.deleteChatMessageByAppId((Long) id);
         return super.removeById(id);
 
     }
