@@ -162,6 +162,10 @@ declare namespace API {
     appId: number
   }
 
+  type downloadAppCodeParams = {
+    appId: number
+  }
+
   type getAppByIdParams = {
     id: number
   }

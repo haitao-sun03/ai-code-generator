@@ -6,6 +6,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
+import com.haitao.generator.ai.AiCodeGenTypeRouteService;
 import com.haitao.generator.core.AiCodeGeneratorFacade;
 import com.haitao.generator.core.builder.VueProjectBuilder;
 import com.haitao.generator.core.stream.handler.StreamHandler;
@@ -70,6 +71,9 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
 
     @Resource
     private ScreenShotService screenShotService;
+
+    @Resource
+    private AiCodeGenTypeRouteService aiCodeGenTypeRouteService;
 
     @Override
     public Flux<String> chatToGenerate(Long appId, String userMessage) {
@@ -169,8 +173,9 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         String appName = appAddRequest.getInitPrompt().length() > 12 ? appAddRequest.getInitPrompt().substring(0, 12) : appAddRequest.getInitPrompt();
         app.setAppName(appName);
         app.setUserId(userId);
-        //默认为VUE模式的app
-        app.setCodeGenType(CodeGenTypeEnum.VUE_PROJECT.getValue());
+        //使用智能路由，由AI选择合适的项目生成类型
+        CodeGenTypeEnum decidedCodeGenTypeEnum = aiCodeGenTypeRouteService.routeToCodeGenType(appAddRequest.getInitPrompt());
+        app.setCodeGenType(decidedCodeGenTypeEnum.getValue());
         // 默认优先级为0
         app.setPriority(0);
 
