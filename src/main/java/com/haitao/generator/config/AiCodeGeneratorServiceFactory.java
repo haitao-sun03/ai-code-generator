@@ -3,6 +3,7 @@ package com.haitao.generator.config;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.haitao.generator.ai.AiCodeGeneratorService;
+import com.haitao.generator.ai.tools.ToolsManager;
 import com.haitao.generator.ai.tools.WriteFileTool;
 import com.haitao.generator.enums.CodeGenTypeEnum;
 import com.haitao.generator.service.ChatHistoryService;
@@ -38,6 +39,9 @@ public class AiCodeGeneratorServiceFactory {
 
     @Autowired
     private ChatHistoryService chatHistoryService;
+
+    @Resource
+    private ToolsManager toolsManager;
 
     /**
      * AI 服务实例缓存
@@ -84,7 +88,7 @@ public class AiCodeGeneratorServiceFactory {
                     .chatModel(chatModel)
                     .streamingChatModel(reasoningStreamingChatModel)
                     .chatMemoryProvider(memoryId -> chatMemory)
-                    .tools(new WriteFileTool())
+                    .tools(toolsManager.getTools())
                     .hallucinatedToolNameStrategy(toolExecutionRequest ->
                             ToolExecutionResultMessage.from(toolExecutionRequest, "not exists the tool named: " + toolExecutionRequest.name()))
                     .build();

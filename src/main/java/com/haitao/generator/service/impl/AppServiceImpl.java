@@ -87,11 +87,12 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         ThrowUtils.throwIf(!userId.equals(app.getUserId()), ErrorCode.NO_AUTH_ERROR, "登录用户不是当前应用拥有者");
         String codeGenType = app.getCodeGenType();
         CodeGenTypeEnum codeGenTypeEnum = CodeGenTypeEnum.getEnumByValue(codeGenType);
-//保存用户消息
+        //保存用户消息
         chatHistoryService.addChatMessage(appId, userMessage, ChatMessageTypeEnum.USER.getValue(), userId);
 
-//        生成内容
+        //生成内容
         Flux<String> aiResponseFlux = aiCodeGeneratorFacade.generateAndSaveCodeStream(userMessage, codeGenTypeEnum, appId);
+        //用于构建响应流并保存AI回复内容
         for (StreamHandler streamHandler : streamHandlers) {
             if (streamHandler.support(codeGenTypeEnum)) {
                 return streamHandler.handle(aiResponseFlux, chatHistoryService, appId, userId);

@@ -8,6 +8,8 @@ import com.haitao.generator.ai.model.messages.AiResponseTextMessage;
 import com.haitao.generator.ai.model.messages.StreamMessage;
 import com.haitao.generator.ai.model.messages.ToolExecutedMessage;
 import com.haitao.generator.ai.model.messages.ToolRequestMessage;
+import com.haitao.generator.ai.tools.BaseTool;
+import com.haitao.generator.ai.tools.ToolsManager;
 import com.haitao.generator.constant.AppConstant;
 import com.haitao.generator.core.builder.VueProjectBuilder;
 import com.haitao.generator.enums.ChatMessageTypeEnum;
@@ -33,6 +35,9 @@ public class JsonMessageStreamHandler implements StreamHandler {
 
     @Resource
     private VueProjectBuilder vueProjectBuilder;
+
+    @Resource
+    private ToolsManager toolsManager;
 
     @Override
     public boolean support(CodeGenTypeEnum codeGenTypeEnum) {
@@ -76,7 +81,7 @@ public class JsonMessageStreamHandler implements StreamHandler {
                     String aiResponse = chatHistoryStringBuilder.toString();
                     chatHistoryService.addChatMessage(appId, aiResponse, ChatMessageTypeEnum.AI.getValue(), userId);
 
-//                    耗时操作，异步构建项目
+                    //耗时操作，异步构建项目
                     String projectDir = AppConstant.CODE_OUTPUT_ROOT_DIR + File.separator + CodeGenTypeEnum.VUE_PROJECT.getValue() + "_" + appId;
                     vueProjectBuilder.buildProjectAsync(projectDir);
                 })
@@ -109,7 +114,8 @@ public class JsonMessageStreamHandler implements StreamHandler {
                 if (toolId != null && !seenToolIds.contains(toolId)) {
                     // 第一次调用这个工具，记录 ID 并完整返回工具信息
                     seenToolIds.add(toolId);
-                    return "\n\n[选择工具] 写入文件\n\n";
+                    BaseTool tool = toolsManager.getTool(toolRequestMessage.getToolName());
+                    return tool.generateToolRequestResult();
                 } else {
                     // 不是第一次调用这个工具，直接返回空
                     return "";
@@ -118,15 +124,8 @@ public class JsonMessageStreamHandler implements StreamHandler {
             case TOOL_EXECUTED -> {
                 ToolExecutedMessage toolExecutedMessage = JSONUtil.toBean(chunk, ToolExecutedMessage.class);
                 JSONObject jsonObject = JSONUtil.parseObj(toolExecutedMessage.getArgs());
-                String relativeFilePath = jsonObject.getStr("relativeFilePath");
-                String suffix = FileUtil.getSuffix(relativeFilePath);
-                String content = jsonObject.getStr("content");
-                String result = String.format("""
-                        [工具调用] 写入文件 %s
-                        ```%s
-                        %s
-                        ```
-                        """, relativeFilePath, suffix, content);
+                BaseTool tool = toolsManager.getTool(toolExecutedMessage.getToolName());
+                String result = tool.generateToolExecutedResult(jsonObject);
                 // 输出前端和要持久化的内容
                 String output = String.format("\n\n%s\n\n", result);
                 chatHistoryStringBuilder.append(output);

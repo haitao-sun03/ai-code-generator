@@ -88,7 +88,7 @@ public class AiCodeGeneratorFacade {
             }
             case VUE_PROJECT -> {
                 TokenStream tokenStream = aiCodeGeneratorService.generateVueProjectStream(appId, userMessage);
-//                将tokenStream转换为统一的返回值类型Flux<String>，其中对不同类型的响应流进行包装
+//                将tokenStream转换为统一的返回值类型Flux<String>，其中对不同类型的响应流进行包装，包括：AI基础回复文本，tool calling请求消息，tool calling完成消息
                 yield proceesTokenStream(tokenStream);
             }
 

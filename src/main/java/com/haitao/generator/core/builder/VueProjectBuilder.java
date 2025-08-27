@@ -9,6 +9,9 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * 构建Vue项目
+ */
 @Component
 @Slf4j
 public class VueProjectBuilder {

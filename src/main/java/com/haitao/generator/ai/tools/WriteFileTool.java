@@ -1,10 +1,13 @@
 package com.haitao.generator.ai.tools;
 
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.json.JSONObject;
 import com.haitao.generator.constant.AppConstant;
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.agent.tool.ToolMemoryId;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,7 +20,8 @@ import java.nio.file.StandardOpenOption;
  * 支持 AI 通过工具调用的方式写入文件
  */
 @Slf4j
-public class WriteFileTool {
+@Component
+public class WriteFileTool extends BaseTool {
 
     @Tool("写入文件到指定路径")
     public String writeFile(
@@ -54,5 +58,28 @@ public class WriteFileTool {
             log.error(errorMessage, e);
             return errorMessage;
         }
+    }
+
+    @Override
+    public String toolName() {
+        return "writeFile";
+    }
+
+    @Override
+    public String displayName() {
+        return "写入文件";
+    }
+
+    @Override
+    public String generateToolExecutedResult(JSONObject jsonObject) {
+        String relativeFilePath = jsonObject.getStr("relativeFilePath");
+        String suffix = FileUtil.getSuffix(relativeFilePath);
+        String content = jsonObject.getStr("content");
+        return String.format("""
+                [工具调用] %s %s
+                ```%s
+                %s
+                ```
+                """, displayName(), relativeFilePath, suffix, content);
     }
 }
