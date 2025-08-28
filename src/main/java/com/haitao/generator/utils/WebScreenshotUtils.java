@@ -24,6 +24,7 @@ import java.util.UUID;
 @Slf4j
 public class WebScreenshotUtils {
 
+    //由于WebDriver不支持多线程，需要给每个截图的线程自己独立的WebDriver
     private static final ThreadLocal<WebDriver> webDriverThreadLocal = new ThreadLocal<>();
 
     /**

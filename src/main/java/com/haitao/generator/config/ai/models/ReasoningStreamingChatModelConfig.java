@@ -1,27 +1,28 @@
-package com.haitao.generator.config;
+package com.haitao.generator.config.ai.models;
 
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import lombok.Data;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 
 @Configuration
-@ConfigurationProperties(prefix = "langchain4j.open-ai.chat-model")
+@ConfigurationProperties(prefix = "langchain4j.open-ai.reasoning-streaming-chat-model")
 @Data
 public class ReasoningStreamingChatModelConfig {
 
     private String baseUrl;
     private String apiKey;
-
+    private String modelName;
+    private int maxTokens;
+    private boolean logRequests;
+    private boolean logResponses;
 
     @Bean
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public OpenAiStreamingChatModel reasoningStreamingChatModel() {
-//        String modelName = "deepseek-reasoner";
-//        int maxTokens = 32768;
-
-        String modelName = "deepseek-chat";
-        int maxTokens = 8192;
 
         return OpenAiStreamingChatModel
                 .builder()
@@ -29,8 +30,8 @@ public class ReasoningStreamingChatModelConfig {
                 .apiKey(apiKey)
                 .modelName(modelName)
                 .maxTokens(maxTokens)
-                .logRequests(true)
-                .logResponses(true)
+                .logRequests(logRequests)
+                .logResponses(logResponses)
                 .build();
     }
 }

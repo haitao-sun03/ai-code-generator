@@ -30,7 +30,9 @@ import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import opennlp.tools.util.StringUtil;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -72,8 +74,9 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
     @Resource
     private ScreenShotService screenShotService;
 
-    @Resource
-    private AiCodeGenTypeRouteService aiCodeGenTypeRouteService;
+    @Autowired
+    @Qualifier("aiCodeGenTypeRouteService")
+    private ObjectProvider<AiCodeGenTypeRouteService> aiCodeGenTypeRouteServiceObjectProvider;
 
     @Override
     public Flux<String> chatToGenerate(Long appId, String userMessage) {
@@ -175,6 +178,8 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         app.setAppName(appName);
         app.setUserId(userId);
         //使用智能路由，由AI选择合适的项目生成类型
+        //这里使用多例模式获取AiCodeGenTypeRouteService，其中的大模型ChatModel也为多例，解决并发访问问题
+        AiCodeGenTypeRouteService aiCodeGenTypeRouteService = aiCodeGenTypeRouteServiceObjectProvider.getObject();
         CodeGenTypeEnum decidedCodeGenTypeEnum = aiCodeGenTypeRouteService.routeToCodeGenType(appAddRequest.getInitPrompt());
         app.setCodeGenType(decidedCodeGenTypeEnum.getValue());
         // 默认优先级为0

@@ -1,4 +1,4 @@
-package com.haitao.generator.config;
+package com.haitao.generator.config.web;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

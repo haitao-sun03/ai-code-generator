@@ -1,22 +1,23 @@
-package com.haitao.generator.config;
+package com.haitao.generator.config.ai.service.factory;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.haitao.generator.ai.AiCodeGeneratorService;
+import com.haitao.generator.ai.guardrails.PromptSafetyInputGuardrail;
 import com.haitao.generator.ai.tools.ToolsManager;
-import com.haitao.generator.ai.tools.WriteFileTool;
 import com.haitao.generator.enums.CodeGenTypeEnum;
 import com.haitao.generator.service.ChatHistoryService;
 import dev.langchain4j.community.store.memory.chat.redis.RedisChatMemoryStore;
 import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
-import dev.langchain4j.model.chat.StreamingChatModel;
+import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import dev.langchain4j.service.AiServices;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 
 import java.time.Duration;
@@ -25,14 +26,16 @@ import java.time.Duration;
 @Slf4j
 public class AiCodeGeneratorServiceFactory {
 
+    @Resource
+    private ChatModel openAiChatModel;
+
     @Autowired
-    private ChatModel chatModel;
+    @Qualifier("streamingChatModel")
+    private ObjectProvider<OpenAiStreamingChatModel> streamingChatModelObjectProvider;
 
-    @Resource
-    private StreamingChatModel openAiStreamingChatModel;
-
-    @Resource
-    private StreamingChatModel reasoningStreamingChatModel;
+    @Autowired
+    @Qualifier("reasoningStreamingChatModel")
+    private ObjectProvider<OpenAiStreamingChatModel> reasoningStreamingChatModelObjectProvider;
 
     @Autowired
     private RedisChatMemoryStore redisChatMemoryStore;
@@ -85,19 +88,28 @@ public class AiCodeGeneratorServiceFactory {
 
         return switch (codeGenTypeEnum) {
             case VUE_PROJECT -> AiServices.builder(AiCodeGeneratorService.class)
-                    .chatModel(chatModel)
-                    .streamingChatModel(reasoningStreamingChatModel)
+                    .chatModel(openAiChatModel)
+                    //使用多例的reasoningStreamingChatModel解决并发访问问题
+                    .streamingChatModel(reasoningStreamingChatModelObjectProvider.getObject())
                     .chatMemoryProvider(memoryId -> chatMemory)
                     .tools(toolsManager.getTools())
                     .hallucinatedToolNameStrategy(toolExecutionRequest ->
                             ToolExecutionResultMessage.from(toolExecutionRequest, "not exists the tool named: " + toolExecutionRequest.name()))
+                    .inputGuardrails(new PromptSafetyInputGuardrail())
+                    //为了避免AI无限调用工具，可以设置最多连续调用工具20次
+                    //经过测试：一般的网页生成不超过20次调用工具即可完成，而超过20次的情况基本就是无限调用的情况
+                    .maxSequentialToolsInvocations(20)
                     .build();
 
+
             case HTML, MULTI_FILE -> AiServices.builder(AiCodeGeneratorService.class)
-                    .chatModel(chatModel)
-                    .streamingChatModel(openAiStreamingChatModel)
+                    .chatModel(openAiChatModel)
+                    //使用多例的streamingChatModel解决并发访问问题
+                    .streamingChatModel(streamingChatModelObjectProvider.getObject())
                     .chatMemory(chatMemory)
+                    .inputGuardrails(new PromptSafetyInputGuardrail())
                     .build();
+
         };
 
     }

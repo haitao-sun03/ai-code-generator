@@ -4,6 +4,8 @@ import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.json.JSONUtil;
+import com.alicp.jetcache.anno.CacheType;
+import com.alicp.jetcache.anno.Cached;
 import com.haitao.generator.constant.AppConstant;
 import com.haitao.generator.exception.BusinessException;
 import com.haitao.generator.exception.ErrorCode;
@@ -20,6 +22,7 @@ import com.mybatisflex.core.paginate.Page;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
@@ -39,6 +42,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/app")
+@Slf4j
 public class AppController {
 
     @Autowired
@@ -241,6 +245,7 @@ public class AppController {
      * @return 应用列表
      */
     @PostMapping("/list/page")
+    @Cached(name = "featured_app_page:", key = "T(com.haitao.generator.utils.CacheKeyUtils).generateKey(#appQueryRequest)", expire = 3600, cacheNullValue = true, cacheType = CacheType.REMOTE)
     public ApiResponse<Page<AppVO>> listFeaturedAppByPage(@RequestBody AppQueryRequest appQueryRequest) {
         long pageNum = appQueryRequest.getPageNum();
         long pageSize = appQueryRequest.getPageSize();

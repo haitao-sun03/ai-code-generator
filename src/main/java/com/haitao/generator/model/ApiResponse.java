@@ -4,9 +4,13 @@ import com.haitao.generator.exception.ErrorCode;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
-public class ApiResponse<T> {
+public class ApiResponse<T> implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private int code; // SUCCESS, ERROR
     private String message; // 描述信息
     private T data; // 实际数据

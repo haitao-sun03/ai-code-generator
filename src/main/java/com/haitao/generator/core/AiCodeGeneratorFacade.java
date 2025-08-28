@@ -7,26 +7,23 @@ import com.haitao.generator.ai.model.MultiFileCodeResult;
 import com.haitao.generator.ai.model.messages.AiResponseTextMessage;
 import com.haitao.generator.ai.model.messages.ToolExecutedMessage;
 import com.haitao.generator.ai.model.messages.ToolRequestMessage;
-import com.haitao.generator.config.AiCodeGeneratorServiceFactory;
+import com.haitao.generator.config.ai.service.factory.AiCodeGeneratorServiceFactory;
 import com.haitao.generator.core.parser.CodeParserExecutor;
 import com.haitao.generator.core.saver.CodeFileSaverExecutor;
-import com.haitao.generator.core.stream.handler.StreamHandler;
 import com.haitao.generator.enums.CodeGenTypeEnum;
 import com.haitao.generator.exception.BusinessException;
 import com.haitao.generator.exception.ErrorCode;
 import dev.langchain4j.service.TokenStream;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.io.File;
-import java.util.List;
 
 /**
- * AI 代码生成外观类，组合生成和保存功能
+ * AI 代码生成门面类
  */
 @Service
 @Slf4j

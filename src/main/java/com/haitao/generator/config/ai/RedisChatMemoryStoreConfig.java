@@ -1,4 +1,4 @@
-package com.haitao.generator.config;
+package com.haitao.generator.config.ai;
 
 import dev.langchain4j.community.store.memory.chat.redis.RedisChatMemoryStore;
 import lombok.Data;
