@@ -105,6 +105,7 @@ const loadFeaturedApps = async () => {
     const res = await listFeaturedAppByPage({
       pageNum: featuredAppsPage.current,
       pageSize: featuredAppsPage.pageSize,
+      priority: 99,
       sortField: 'create_time',
       sortOrder: 'desc',
     })

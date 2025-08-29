@@ -37,4 +37,9 @@ public class AppQueryRequest extends PageRequest implements Serializable {
      */
     private String codeGenType;
 
+    /**
+     * 优先级
+     */
+    private Integer priority;
+
 }

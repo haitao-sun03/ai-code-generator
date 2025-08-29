@@ -34,4 +34,5 @@ build/
 
 ### custom ###
 application-local.yaml
+application-prod.yaml
 tmp

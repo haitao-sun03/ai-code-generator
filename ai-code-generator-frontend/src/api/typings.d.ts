@@ -100,6 +100,7 @@ declare namespace API {
     userId?: number
     appName?: string
     codeGenType?: string
+    priority?: number
   }
 
   type AppUpdateRequest = {

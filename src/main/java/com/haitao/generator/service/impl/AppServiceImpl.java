@@ -33,6 +33,7 @@ import opennlp.tools.util.StringUtil;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -54,6 +55,9 @@ import static com.haitao.generator.constant.AppConstant.*;
  */
 @Service
 public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppService {
+
+    @Value("${code.deploy-host}")
+    private String deployHost;
 
     @Autowired
     private UserService userService;
@@ -151,7 +155,7 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
 
         boolean updateResult = this.updateById(updateApp);
         ThrowUtils.throwIf(!updateResult, ErrorCode.OPERATION_ERROR, "部署应用后更新数据库失败");
-        String deployUrl = StrUtil.format("{}/{}", CODE_DEPLOY_HOST, deployKey);
+        String deployUrl = StrUtil.format("{}/{}", deployHost, deployKey);
 //        异步进行截图，压缩，上传COS，清理，更新app cover字段
         screenShotAndUploadCOSAsync(deployUrl, appId);
         return deployUrl;
@@ -300,11 +304,13 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         String appName = appQueryRequest.getAppName();
         String sortField = appQueryRequest.getSortField();
         String sortOrder = appQueryRequest.getSortOrder();
+        Integer priority =  appQueryRequest.getPriority();
 
 
         QueryWrapper queryWrapper = QueryWrapper.create()
                 .eq("id", id)
                 .eq("user_id", userId)
+                .eq("priority",priority)
                 .like("app_name", appName);
 
         // 默认按照优先级和创建时间排序
