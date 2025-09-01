@@ -180,6 +180,17 @@
             <version>2.7.6</version>
         </dependency>
 
+        <!--  数据监控相关依赖      -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+
+
     </dependencies>
 
     <build>

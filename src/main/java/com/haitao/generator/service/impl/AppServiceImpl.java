@@ -21,6 +21,8 @@ import com.haitao.generator.model.request.app.AppAddRequest;
 import com.haitao.generator.model.request.app.AppQueryRequest;
 import com.haitao.generator.model.response.AppVO;
 import com.haitao.generator.model.response.UserVO;
+import com.haitao.generator.monitor.MonitorContext;
+import com.haitao.generator.monitor.MonitorContextHolder;
 import com.haitao.generator.service.AppService;
 import com.haitao.generator.service.ChatHistoryService;
 import com.haitao.generator.service.ScreenShotService;
@@ -96,7 +98,14 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         CodeGenTypeEnum codeGenTypeEnum = CodeGenTypeEnum.getEnumByValue(codeGenType);
         //保存用户消息
         chatHistoryService.addChatMessage(appId, userMessage, ChatMessageTypeEnum.USER.getValue(), userId);
-
+        //当前请求线程设置上下文参数
+        MonitorContextHolder.setContext(
+                MonitorContext
+                        .builder()
+                        .appId(appId.toString())
+                        .userId(userId.toString())
+                        .build()
+        );
         //生成内容
         Flux<String> aiResponseFlux = aiCodeGeneratorFacade.generateAndSaveCodeStream(userMessage, codeGenTypeEnum, appId);
         //用于构建响应流并保存AI回复内容
@@ -106,7 +115,9 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
             }
         }
 
-        return aiResponseFlux;
+        return aiResponseFlux.doFinally(signalType -> {
+            MonitorContextHolder.clearContext();
+        });
     }
 
     @Override
@@ -304,13 +315,13 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         String appName = appQueryRequest.getAppName();
         String sortField = appQueryRequest.getSortField();
         String sortOrder = appQueryRequest.getSortOrder();
-        Integer priority =  appQueryRequest.getPriority();
+        Integer priority = appQueryRequest.getPriority();
 
 
         QueryWrapper queryWrapper = QueryWrapper.create()
                 .eq("id", id)
                 .eq("user_id", userId)
-                .eq("priority",priority)
+                .eq("priority", priority)
                 .like("app_name", appName);
 
         // 默认按照优先级和创建时间排序
