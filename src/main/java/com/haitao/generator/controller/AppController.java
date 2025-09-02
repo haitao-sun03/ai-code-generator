@@ -6,6 +6,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.json.JSONUtil;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
+import com.haitao.generator.annotations.HotKeyInvalidCache;
 import com.haitao.generator.constant.AppConstant;
 import com.haitao.generator.exception.BusinessException;
 import com.haitao.generator.exception.ErrorCode;
@@ -55,6 +56,7 @@ public class AppController {
     private ProjectDownloadService projectDownloadService;
 
     @GetMapping(value = "/chatToGenerate", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @HotKeyInvalidCache(prefix = "app_history_",key = "#appId")
     public Flux<ServerSentEvent<String>> chatToGenerate(@RequestParam(value = "appId", required = true) Long appId,
                                                         @RequestParam(value = "userMessage", required = true) String userMessage) {
         Flux<String> contentFlux = appService.chatToGenerate(appId, userMessage);

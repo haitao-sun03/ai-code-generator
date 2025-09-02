@@ -2,28 +2,30 @@ package com.haitao.generator.model;
 
 import com.haitao.generator.exception.ErrorCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class ApiResponse<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private int code; // SUCCESS, ERROR
     private String message; // 描述信息
     private T data; // 实际数据
-    private String timestamp; // 响应时间
-    private String requestId; // 请求ID（可选）
+//    private String timestamp; // 响应时间
+//    private String requestId; // 请求ID（可选）
 
     // 构造函数
     public ApiResponse(int  code, String message, T data, String timestamp, String requestId) {
         this.code = code;
         this.message = message;
         this.data = data;
-        this.timestamp = timestamp;
-        this.requestId = requestId;
+//        this.timestamp = timestamp;
+//        this.requestId = requestId;
     }
 
     // 静态工厂方法，方便构造成功响应

@@ -1,10 +1,13 @@
 package com.haitao.generator.controller;
 
 import cn.dev33.satoken.annotation.SaCheckRole;
+import cn.hutool.core.util.StrUtil;
+import com.haitao.generator.annotations.HotKeyCached;
 import com.haitao.generator.exception.ErrorCode;
 import com.haitao.generator.model.ApiResponse;
 import com.haitao.generator.model.request.history.ChatHistoryQueryRequest;
 import com.haitao.generator.utils.ThrowUtils;
+import com.jd.platform.hotkey.client.callback.JdHotKeyStore;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +39,7 @@ public class ChatHistoryController {
      * @return 对话历史分页
      */
     @GetMapping("/app/{appId}")
+    @HotKeyCached(prefix = "app_history_",key = "#appId + '_' + #pageSize")
     public ApiResponse<Page<ChatHistory>> listAppChatHistory(@PathVariable Long appId,
                                                              @RequestParam(defaultValue = "10") int pageSize,
                                                              @RequestParam(required = false) LocalDateTime lastCreateTime) {
@@ -61,7 +65,6 @@ public class ChatHistoryController {
         Page<ChatHistory> result = chatHistoryService.page(Page.of(pageNum, pageSize), queryWrapper);
         return ApiResponse.success(result);
     }
-
 
 
 }
