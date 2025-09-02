@@ -1,10 +1,10 @@
-# AI代码生成器 (AI Code Generator)
+# 智码工坊 (Smart Code Workshop)
 
-一个基于AI的智能代码生成平台，支持多种编程语言和框架的代码自动生成。
+一个基于AI的智能代码生成平台，如同传统工匠精心雕琢每件作品，让每一行代码都经过智能优化。支持多种编程语言和框架的代码自动生成，将创意想法转化为高质量的代码实现。
 
 ## 🚀 项目简介
 
-AI代码生成器是一个全栈应用，旨在通过人工智能技术帮助开发者快速生成高质量的代码。项目采用前后端分离架构，后端使用Spring Boot，前端使用Vue.js + TypeScript。
+智码工坊是一个全栈应用，旨在通过人工智能技术帮助开发者快速生成高质量的代码。如同传统工坊中经验丰富的师傅，它能够深度理解开发需求，并精心制作出符合最佳实践的代码作品。项目采用前后端分离架构，后端使用Spring Boot，前端使用Vue.js + TypeScript。
 
 ## 📋 功能特性
 
@@ -54,7 +54,7 @@ AI代码生成器是一个全栈应用，旨在通过人工智能技术帮助开
 ## 📁 项目结构
 
 ```
-ai-code-generater/
+smart-code-workshop/
 ├── src/                           # 后端源码
 │   ├── main/
 │   │   ├── java/                  # Java源码
@@ -101,7 +101,7 @@ ai-code-generater/
 1. **克隆项目**
    ```bash
    git clone <repository-url>
-   cd ai-code-generater
+   cd smart-code-workshop
    ```
 
 2. **配置数据库和Redis**

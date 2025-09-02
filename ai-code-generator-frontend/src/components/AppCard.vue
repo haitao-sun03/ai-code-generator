@@ -56,42 +56,87 @@ const handleViewWork = () => {
 
 <style scoped>
 .app-card {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 16px;
+  background: white;
+  border-radius: var(--radius-xl);
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition:
-    transform 0.3s,
-    box-shadow 0.3s;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--neutral-200);
+  transition: all var(--transition-normal);
   cursor: pointer;
+  position: relative;
+}
+
+.app-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--gradient-primary);
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+  z-index: 0;
+}
+
+.app-card:hover::before {
+  opacity: 0.02;
 }
 
 .app-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.25);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+  border-color: var(--primary-200);
+}
+
+.app-card--featured {
+  border: 2px solid var(--primary-200);
+  background: linear-gradient(135deg, white 0%, var(--primary-50) 100%);
+}
+
+.app-card--featured::after {
+  content: '精选';
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  background: var(--gradient-primary);
+  color: white;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  z-index: 2;
 }
 
 .app-preview {
-  height: 180px;
-  background: #f5f5f5;
+  height: 200px;
+  background: var(--neutral-100);
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   position: relative;
+  z-index: 1;
 }
 
 .app-preview img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform var(--transition-normal);
+}
+
+.app-card:hover .app-preview img {
+  transform: scale(1.05);
 }
 
 .app-placeholder {
   font-size: 48px;
-  color: #d9d9d9;
+  color: var(--neutral-400);
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .app-overlay {
@@ -100,23 +145,31 @@ const handleViewWork = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(30, 58, 138, 0.8);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transition: opacity 0.3s;
+  transition: all var(--transition-normal);
+  z-index: 2;
 }
 
 .app-card:hover .app-overlay {
   opacity: 1;
 }
 
+.app-overlay .ant-space {
+  gap: var(--space-3) !important;
+}
+
 .app-info {
-  padding: 16px;
+  padding: var(--space-4);
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
+  position: relative;
+  z-index: 1;
 }
 
 .app-info-left {
@@ -129,21 +182,66 @@ const handleViewWork = () => {
 }
 
 .app-title {
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0 0 4px;
-  color: #1a1a1a;
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  margin: 0 0 var(--space-1);
+  color: var(--neutral-800);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color var(--transition-fast);
+}
+
+.app-card:hover .app-title {
+  color: var(--primary-700);
+}
+
+.app-author {
+  font-size: var(--text-sm);
+  color: var(--neutral-600);
+  margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.app-author {
-  font-size: 14px;
-  color: #666;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* 现代化按钮样式覆盖 */
+:deep(.ant-btn) {
+  border-radius: var(--radius-md);
+  font-weight: var(--font-medium);
+  transition: all var(--transition-normal);
+  border: none;
+}
+
+:deep(.ant-btn-primary) {
+  background: var(--gradient-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+:deep(.ant-btn-primary:hover) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+:deep(.ant-btn-default) {
+  background: white;
+  color: var(--primary-600);
+  border: 1px solid var(--primary-200);
+}
+
+:deep(.ant-btn-default:hover) {
+  background: var(--primary-50);
+  border-color: var(--primary-300);
+  color: var(--primary-700);
+}
+
+:deep(.ant-avatar) {
+  border: 2px solid var(--primary-100);
+  transition: all var(--transition-normal);
+}
+
+.app-card:hover :deep(.ant-avatar) {
+  border-color: var(--primary-300);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
 </style>

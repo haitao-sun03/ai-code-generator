@@ -1,6 +1,6 @@
 <template>
   <div id="userLoginPage">
-    <h2 class="title">AI 应用生成 - 用户登录</h2>
+    <h2 class="title">智码工坊 - 用户登录</h2>
     <a-form :model="formState" name="basic" autocomplete="off" @finish="handleSubmit">
       <a-form-item name="userAccount" :rules="[{ required: true, message: '请输入账号' }]">
         <a-input v-model:value="formState.userAccount" placeholder="请输入账号" />
@@ -62,20 +62,80 @@ const handleSubmit = async (values: any) => {
 <style scoped>
 #userLoginPage {
   background: white;
-  max-width: 720px;
-  padding: 24px;
-  margin: 24px auto;
+  max-width: 480px;
+  padding: var(--space-8);
+  margin: var(--space-8) auto;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--neutral-200);
 }
 
 .title {
   text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: var(--space-8);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-semibold);
+  color: var(--primary-700);
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .tips {
   text-align: right;
-  color: #bbb;
-  font-size: 13px;
-  margin-bottom: 16px;
+  color: var(--neutral-500);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-4);
+}
+
+.tips a {
+  color: var(--primary-600);
+  text-decoration: none;
+  font-weight: var(--font-medium);
+  transition: color var(--transition-fast);
+}
+
+.tips a:hover {
+  color: var(--primary-700);
+}
+
+/* 现代化表单样式 */
+:deep(.ant-form-item) {
+  margin-bottom: var(--space-5);
+}
+
+:deep(.ant-input),
+:deep(.ant-input-password) {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--neutral-300);
+  transition: all var(--transition-fast);
+  font-size: var(--text-base);
+}
+
+:deep(.ant-input:focus),
+:deep(.ant-input-password:focus) {
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+:deep(.ant-btn) {
+  height: auto;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-medium);
+  transition: all var(--transition-normal);
+}
+
+:deep(.ant-btn-primary) {
+  background: var(--gradient-primary);
+  border: none;
+  box-shadow: var(--shadow-sm);
+}
+
+:deep(.ant-btn-primary:hover) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 </style>

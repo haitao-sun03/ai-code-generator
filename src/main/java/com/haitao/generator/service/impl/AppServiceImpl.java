@@ -316,12 +316,14 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         String sortField = appQueryRequest.getSortField();
         String sortOrder = appQueryRequest.getSortOrder();
         Integer priority = appQueryRequest.getPriority();
+        String codeGenType = appQueryRequest.getCodeGenType();
 
 
         QueryWrapper queryWrapper = QueryWrapper.create()
                 .eq("id", id)
                 .eq("user_id", userId)
                 .eq("priority", priority)
+                .eq("code_gen_type",codeGenType)
                 .like("app_name", appName);
 
         // 默认按照优先级和创建时间排序

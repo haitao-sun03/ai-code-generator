@@ -2,11 +2,11 @@
   <a-layout-header class="header">
     <a-row :wrap="false">
       <!-- 左侧：Logo和标题 -->
-      <a-col flex="200px">
+      <a-col flex="240px">
         <RouterLink to="/">
           <div class="header-left">
-            <img class="logo" src="@/assets/logo.png" alt="Logo" />
-            <h1 class="site-title">AI应用生成平台</h1>
+            <img class="logo" src="@/assets/logo.svg" alt="智码工坊" />
+            <h1 class="site-title">智码工坊</h1>
           </div>
         </RouterLink>
       </a-col>
@@ -82,11 +82,6 @@ const originItems = [
     label: '应用管理',
     title: '应用管理',
   },
-  {
-    key: 'others',
-    label: h('a', { href: 'https://www.codefather.cn', target: '_blank' }, '编程导航'),
-    title: '编程导航',
-  },
 ]
 
 // 过滤菜单项
@@ -133,28 +128,86 @@ const doLogout = async () => {
 
 <style scoped>
 .header {
-  background: #fff;
+  background: white;
   padding: 0 24px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid #e2e8f0;
+  height: 64px;
+  line-height: 64px;
 }
 
 .header-left {
   display: flex;
   align-items: center;
   gap: 12px;
+  transition: all 0.25s ease-in-out;
+  height: 64px;
+  padding: 8px 0;
+}
+
+.header-left:hover {
+  transform: scale(1.01);
 }
 
 .logo {
-  height: 48px;
-  width: 48px;
+  height: 40px;
+  width: auto;
+  transition: all 0.25s ease-in-out;
+  flex-shrink: 0;
+}
+
+.logo:hover {
+  filter: drop-shadow(0 4px 8px rgba(59, 130, 246, 0.2));
 }
 
 .site-title {
   margin: 0;
   font-size: 18px;
-  color: #1890ff;
+  font-weight: 600;
+  color: #1d4ed8;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .ant-menu-horizontal {
   border-bottom: none !important;
+  background: transparent;
+  line-height: 62px;
+}
+
+:deep(.ant-menu-item) {
+  height: 62px;
+  line-height: 62px;
+}
+
+.user-login-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 现代化按钮样式覆盖 */
+:deep(.ant-btn-primary) {
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.25s ease-in-out;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+:deep(.ant-btn-primary:hover) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+:deep(.ant-avatar) {
+  border: 2px solid var(--primary-200);
+  transition: all var(--transition-normal);
+}
+
+:deep(.ant-avatar:hover) {
+  border-color: var(--primary-400);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
 </style>

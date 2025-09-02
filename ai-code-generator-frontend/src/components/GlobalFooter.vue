@@ -8,7 +8,7 @@
           rel="noopener noreferrer"
           class="author-link"
         >
-          AI代码生成平台
+          智码工坊
         </a>
       </p>
     </div>
@@ -21,17 +21,49 @@
 
 <style scoped>
 .footer {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
+  background: white;
+  backdrop-filter: blur(20px);
   text-align: center;
-  padding: 20px;
-  margin-top: 40px;
-  border-top: 1px solid rgba(102, 126, 234, 0.1);
+  padding: var(--space-6);
+  margin-top: 0;
+  border-top: 1px solid var(--neutral-200);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
+  position: relative;
+}
+
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 2px;
+  background: var(--gradient-primary);
+  border-radius: var(--radius-full);
+}
+
+.footer-content {
+  position: relative;
+  z-index: 1;
 }
 
 .copyright {
   margin: 0;
-  color: #666;
-  font-size: 14px;
+  color: var(--neutral-600);
+  font-size: var(--text-sm);
+  transition: color var(--transition-fast);
+}
+
+.author-link {
+  color: var(--primary-600);
+  text-decoration: none;
+  font-weight: var(--font-medium);
+  transition: all var(--transition-fast);
+}
+
+.author-link:hover {
+  color: var(--primary-700);
+  text-decoration: underline;
 }
 </style>
