@@ -1,33 +1,65 @@
 package com.haitao.generator.monitor;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.concurrent.Callable;
 
 /**
- * 同一线程模型调用时，封装业务参数,监控时使用
+ * 监控上下文持有者 - 支持跨线程传递
  */
-@Slf4j
 public class MonitorContextHolder {
-
-    private static final ThreadLocal<MonitorContext> CONTEXT_HOLDER = new ThreadLocal<>();
-
+    
+    // 使用 InheritableThreadLocal 支持父子线程间的上下文传递
+    private static final ThreadLocal<MonitorContext> contextHolder = new InheritableThreadLocal<>();
+    
     /**
      * 设置监控上下文
      */
     public static void setContext(MonitorContext context) {
-        CONTEXT_HOLDER.set(context);
+        contextHolder.set(context);
     }
-
+    
     /**
-     * 获取当前监控上下文
+     * 获取监控上下文
      */
     public static MonitorContext getContext() {
-        return CONTEXT_HOLDER.get();
+        return contextHolder.get();
     }
-
+    
     /**
      * 清除监控上下文
      */
     public static void clearContext() {
-        CONTEXT_HOLDER.remove();
+        contextHolder.remove();
+    }
+    
+    /**
+     * 包装Runnable以传递上下文
+     */
+    public static Runnable wrapRunnable(Runnable runnable) {
+        MonitorContext context = getContext();
+        return () -> {
+            MonitorContext oldContext = getContext();
+            try {
+                setContext(context);
+                runnable.run();
+            } finally {
+                setContext(oldContext);
+            }
+        };
+    }
+    
+    /**
+     * 包装Callable以传递上下文
+     */
+    public static <T> Callable<T> wrapCallable(Callable<T> callable) {
+        MonitorContext context = getContext();
+        return () -> {
+            MonitorContext oldContext = getContext();
+            try {
+                setContext(context);
+                return callable.call();
+            } finally {
+                setContext(oldContext);
+            }
+        };
     }
 }

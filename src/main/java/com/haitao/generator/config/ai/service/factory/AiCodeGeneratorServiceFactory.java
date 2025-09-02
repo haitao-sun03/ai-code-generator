@@ -81,7 +81,7 @@ public class AiCodeGeneratorServiceFactory {
                 .builder()
                 .id(appId)
                 .chatMemoryStore(redisChatMemoryStore)
-                .maxMessages(20)
+                .maxMessages(50)
                 .build();
         //每次AiCodeGeneratorService从Caffeine中过期后，需要重新生成新的AiCodeGeneratorService，需要重新同步对话记忆到redis
         chatHistoryService.loadChatHistoryToMemory(appId, chatMemory, 20);

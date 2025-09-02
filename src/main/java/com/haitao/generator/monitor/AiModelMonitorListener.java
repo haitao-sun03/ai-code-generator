@@ -31,6 +31,10 @@ public class AiModelMonitorListener implements ChatModelListener {
         requestContext.attributes().put(REQUEST_START_TIME_KEY, Instant.now());
         // 从监控上下文中获取信息
         MonitorContext context = MonitorContextHolder.getContext();
+        if (context == null) {
+            log.warn("监控上下文为空，无法记录请求指标");
+            return;
+        }
         String userId = context.getUserId();
         String appId = context.getAppId();
         //在模型请求上下文中重新存入MonitorContext，由于响应时或错误时，和请求时的线程不同，后续无法从MonitorContextHolder获取到userId,appId
@@ -47,6 +51,10 @@ public class AiModelMonitorListener implements ChatModelListener {
         Map<Object, Object> attributes = responseContext.attributes();
         // 从监控上下文中获取信息
         MonitorContext context = (MonitorContext) attributes.get(MONITOR_CONTEXT_KEY);
+        if (context == null) {
+            log.warn("监控上下文为空，无法记录响应指标");
+            return;
+        }
         String userId = context.getUserId();
         String appId = context.getAppId();
         // 获取模型名称
@@ -61,8 +69,13 @@ public class AiModelMonitorListener implements ChatModelListener {
 
     @Override
     public void onError(ChatModelErrorContext errorContext) {
-        // 从监控上下文中获取信息
-        MonitorContext context = MonitorContextHolder.getContext();
+        // 从属性中获取监控信息（由 onRequest 方法存储）
+        Map<Object, Object> attributes = errorContext.attributes();
+        MonitorContext context = (MonitorContext) attributes.get(MONITOR_CONTEXT_KEY);
+        if (context == null) {
+            log.warn("监控上下文为空，无法记录错误指标");
+            return;
+        }
         String userId = context.getUserId();
         String appId = context.getAppId();
         // 获取模型名称和错误类型
@@ -72,7 +85,6 @@ public class AiModelMonitorListener implements ChatModelListener {
         aiModelMetricsCollector.recordRequest(userId, appId, modelName, "error");
         aiModelMetricsCollector.recordError(userId, appId, modelName, errorMessage);
         // 记录响应时间（即使是错误响应）
-        Map<Object, Object> attributes = errorContext.attributes();
         recordResponseTime(attributes, userId, appId, modelName);
     }
 
