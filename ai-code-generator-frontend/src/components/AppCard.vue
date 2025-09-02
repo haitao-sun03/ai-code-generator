@@ -3,7 +3,7 @@
     <div class="app-preview">
       <img v-if="app.cover" :src="app.cover" :alt="app.appName" />
       <div v-else class="app-placeholder">
-        <span>🤖</span>
+        <img src="@/assets/defaultAppCover.svg" alt="默认应用封面" />
       </div>
       <div class="app-overlay">
         <a-space>
@@ -131,12 +131,19 @@ const handleViewWork = () => {
 }
 
 .app-placeholder {
-  font-size: 48px;
-  color: var(--neutral-400);
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--neutral-50);
+}
+
+.app-placeholder img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-normal);
 }
 
 .app-overlay {

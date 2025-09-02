@@ -166,15 +166,15 @@ onMounted(() => {
     <div class="container">
       <!-- 网站标题和描述 -->
       <div class="hero-section">
-        <h1 class="hero-title">智码工坊</h1>
-        <p class="hero-description">一句话轻松创建网站应用</p>
+        <h1 class="hero-title">一句话，呈所想</h1>
+        <p class="hero-description">与 AI 对话轻松创建应用和网站</p>
       </div>
 
       <!-- 用户提示词输入框 -->
       <div class="input-section">
         <a-textarea
           v-model:value="userPrompt"
-          placeholder="帮我创建个人博客网站"
+          placeholder="帮我创建公司官网..."
           :rows="4"
           :maxlength="1000"
           class="prompt-input"
