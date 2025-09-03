@@ -150,7 +150,7 @@ smart-code-workshop/
 
 ### 后端开发
 
-- **API文档**: 启动后端服务后访问 `http://localhost:8080/doc.html`
+- **API文档**: 启动后端服务后访问 `http://localhost:8080/api/doc.html`
 - **数据库**: 使用MyBatis-Flex进行数据持久化
 - **配置文件**: `src/main/resources/application.yml`
 - **AI集成**: 基于LangChain4j框架集成各种AI模型
@@ -228,7 +228,7 @@ curl http://localhost:8080/actuator/prometheus
 如有问题或建议，请通过以下方式联系：
 
 - 提交 [Issue](../../issues)
-- 发送邮件至: [your-email@example.com]
+- 发送邮件至: [zhangbi1012@gmail.com]
 
 ## 🙏 致谢
 

@@ -9,12 +9,9 @@ import com.jd.platform.hotkey.client.callback.JdHotKeyStore;
 import com.mybatisflex.core.paginate.Page;
 import jakarta.annotation.Resource;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.expression.ExpressionParser;
@@ -22,7 +19,6 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -34,15 +30,6 @@ public class HotKeyAspect {
     private RedisTemplate<String, Object> redisTemplate;
 
     /**
-     * String keyPrefix = "app_history_";
-     * String hotKey = StrUtil.format("{}_{}_{}", keyPrefix, appId, pageSize);
-     * if (JdHotKeyStore.isHotKey(hotKey)) {
-     * //注意是get，不是getValue。getValue会获取并上报，get是纯粹的本地获取
-     * Object object = JdHotKeyStore.get(hotKey);
-     * if (object != null) {
-     * return ApiResponse.success((Page<ChatHistory>) object);
-     * }
-     * }
      *
      * @param joinPoint
      * @param hotKeyCached
