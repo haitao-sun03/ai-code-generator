@@ -59,9 +59,9 @@ jetcache:
   remote:
     default:
       type: redis
-      host: 1.12.74.230
-      port: 6379
-      password: zht199100!
+      host: your-ip
+      port: your-port
+      password: your-password
       cacheNullValue: true
       poolConfig:
         minIdle: 5
@@ -95,7 +95,8 @@ code:
 # 热 key 探测
 hotkey:
   app-name: ai_code_generator
+  #本地缓存大小限制
   caffeine-size: 10000
   #推送频率,客户端累加，达到指定时间后推送给worker
   push-period: 1000
-  etcd-server: your-etch-url
+  etcd-server: your-etcd-url
